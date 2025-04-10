@@ -43,3 +43,38 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Xcode
+ios/Runner.xcworkspace/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+
+# macOS
+macos/Pods/
+macos/Runner.xcworkspace/
+macos/.symlinks/
+macos/Flutter/Flutter.framework
+macos/Flutter/Flutter.podspec
+
+# Windows/Linux generated stuff
+linux/flutter/
+windows/flutter/
+
+# Output binaries
+*.lock
+*.exe
+*.dll
+*.so
+*.dylib
+*.bin
+*.snap
+
+# Web
+web/.dart_tool/
+web/build/
+
+# VS Code backups
+*.code-workspace
+*.vscode/
