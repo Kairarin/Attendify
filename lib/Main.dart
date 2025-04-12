@@ -30,7 +30,13 @@ class LoginScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Image.asset('assets/login_image.png'), // Ganti dengan gambar
+            Image.asset(
+              'assets/images/LoginImage.jpg',
+              width: 200,
+              height: 200,
+              fit: BoxFit.cover, // opsional: bisa juga contain, fill, dll
+            ),
+
             SizedBox(height: 20),
             Text(
               'Welcome to Attendify App',
