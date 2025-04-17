@@ -1,29 +1,64 @@
 import 'package:flutter/material.dart';
 
+// import semua screen
+import 'screens/employee_overtime_screen.dart';
+import 'screens/employee_payroll_screen.dart';
+import 'screens/attendance_history_screen.dart';
+import 'screens/employee_attendance_screen.dart';
+import 'screens/request_leave_screen.dart';
+import 'screens/career_profiling_screen.dart';
+import 'screens/Apps.dart';
+import 'screens/failed.dart';
+import 'screens/Request.dart';
+
 void main() {
-  runApp(AttendifyApp());
+  runApp(const AttendifyApp());
 }
 
 class AttendifyApp extends StatelessWidget {
+  const AttendifyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Attendify App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginScreen(),
+      theme: ThemeData(
+        primaryColor: const Color(0xFF22577A),
+        scaffoldBackgroundColor: Colors.white,
+      ),
+
+      // mulai dari login
+      initialRoute: '/',
+      routes: {
+        // Login sebagai root
+        '/': (_) => const LoginScreen(),
+
+        // setelah login, pindah ke Overtime
+        '/overtime': (_) => const EmployeeOvertimeScreen(),
+
+        // screen lainnya
+        '/payroll': (_) => const EmployeePayrollScreen(),
+        '/history': (_) => const AttendanceHistoryScreen(),
+        '/attendance': (_) => const EmployeeAttendanceScreen(),
+        '/request_leave': (_) => const RequestLeaveScreen(),
+        '/career': (_) => const CareerProfilingScreen(),
+      },
     );
   }
 }
 
+/// ==== LOGIN SCREEN ==== ///
 class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/background.png'), // Ganti dengan gambar latar belakang
+            image: AssetImage('assets/background.png'),
             fit: BoxFit.cover,
           ),
         ),
@@ -34,50 +69,51 @@ class LoginScreen extends StatelessWidget {
               'assets/images/LoginImage.jpg',
               width: 200,
               height: 200,
-              fit: BoxFit.cover, // opsional: bisa juga contain, fill, dll
+              fit: BoxFit.cover,
             ),
-
-            SizedBox(height: 20),
-            Text(
+            const SizedBox(height: 20),
+            const Text(
               'Welcome to Attendify App',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'LOGIN',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 20),
-            TextField(
+            const SizedBox(height: 20),
+            const TextField(
               decoration: InputDecoration(
                 labelText: 'NIK',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 20),
-            TextField(
+            const SizedBox(height: 20),
+            const TextField(
+              obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.visibility_off), // Ganti dengan logo mata
+                suffixIcon: Icon(Icons.visibility_off),
               ),
-              obscureText: true,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Logika untuk login
+                // setelah login, ganti ke Overtime
+                Navigator.pushReplacementNamed(context, '/overtime');
               },
-              child: Text('Login'),
+              child: const Text('Login'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, minimumSize: Size(double.infinity, 50),
+                backgroundColor: const Color(0xFF22577A),
+                minimumSize: const Size(double.infinity, 50),
               ),
             ),
             TextButton(
               onPressed: () {
-                // Lupa password
+                // TODO: logic lupa password
               },
-              child: Text(
+              child: const Text(
                 'Forget Password?',
                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
               ),
