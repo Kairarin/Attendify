@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'main.dart'; // untuk MainNav
 
 class EmployeePayroll {
   final String name;
@@ -22,13 +23,14 @@ class EmployeePayroll {
 }
 
 class PayrollPage extends StatefulWidget {
-  const PayrollPage({super.key});
+  const PayrollPage({Key? key}) : super(key: key);
 
   @override
   State<PayrollPage> createState() => _PayrollPageState();
 }
 
 class _PayrollPageState extends State<PayrollPage> {
+  // Ganti nama list data jadi "_data"
   final List<EmployeePayroll> _data = [
     EmployeePayroll(
       name: 'Dustin Henderson',
@@ -48,143 +50,150 @@ class _PayrollPageState extends State<PayrollPage> {
       deduction: 0,
       isPaid: true,
     ),
+    // Tambah data lain jika perlu...
   ];
 
-  String _formatCurrency(double value) {
-    final f = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
-    return f.format(value);
+  String search = '';
+  String? filterPaid;
+
+  String _fmt(double v) =>
+      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0).format(v);
+
+  // Gunakan _data di sini
+  List<EmployeePayroll> get _filtered => _data.where((e) {
+    if (filterPaid != null) {
+      final status = e.isPaid ? 'Paid' : 'Unpaid';
+      if (status != filterPaid) return false;
+    }
+    if (search.isNotEmpty &&
+        !e.name.toLowerCase().contains(search.toLowerCase())) return false;
+    return true;
+  }).toList();
+
+  void _pickFilter() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => Column(mainAxisSize: MainAxisSize.min, children: [
+        RadioListTile<String?>(
+          title: const Text('All'),
+          value: null,
+          groupValue: filterPaid,
+          onChanged: (v) => setState(() => filterPaid = v),
+        ),
+        RadioListTile<String?>(
+          title: const Text('Paid'),
+          value: 'Paid',
+          groupValue: filterPaid,
+          onChanged: (v) => setState(() => filterPaid = v),
+        ),
+        RadioListTile<String?>(
+          title: const Text('Unpaid'),
+          value: 'Unpaid',
+          groupValue: filterPaid,
+          onChanged: (v) => setState(() => filterPaid = v),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('OK'),
+        ),
+      ]),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payroll'),
-        leading: const BackButton(),
-      ),
+      appBar: AppBar(title: const Text('Payroll')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Filter button
-            ElevatedButton.icon(
-              onPressed: () {
-                // TODO: implement filter
-              },
-              icon: const Icon(Icons.filter_list),
-              label: const Text('Filter'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey.shade200,
-                foregroundColor: Colors.black,
+        child: Column(children: [
+          // Search + Filter
+          Row(children: [
+            Expanded(
+              child: TextField(
+                decoration: const InputDecoration(
+                    prefixIcon: Icon(Icons.search), hintText: 'Search Name'),
+                onChanged: (v) => setState(() => search = v),
               ),
             ),
-            const SizedBox(height: 16),
-            // Title
-            const Text(
-              'Salary Overview (Hourly Based)',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+              onPressed: _pickFilter,
+              icon: const Icon(Icons.filter_list),
+              label: const Text('Filter'),
             ),
-            const SizedBox(height: 12),
-            // List of payroll cards
-            Column(
-              children: _data.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final emp = entry.value;
-                final payThisMonth = (emp.hoursWorked * emp.hourlyRate) + emp.bonus - emp.deduction;
-
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                    child: Column(
-                      children: [
-                        // Nama & status + action button
-                        Row(
+          ]),
+          const SizedBox(height: 16),
+          // Daftar karyawan
+          Column(
+            children: _filtered.map((e) {
+              final pay = (e.hoursWorked * e.hourlyRate) + e.bonus - e.deduction;
+              return Card(
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Row(children: [
+                    // Info kiri
+                    Expanded(
+                      child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Info kiri
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(emp.name,
-                                      style: const TextStyle(
-                                          fontSize: 16, fontWeight: FontWeight.bold)),
-                                  const SizedBox(height: 4),
-                                  Text('Hours Worked: ${emp.hoursWorked} / ${emp.totalHours}'),
-                                  Text('Hourly Rate: ${_formatCurrency(emp.hourlyRate)}'),
-                                  Text('Pay This Month: ${_formatCurrency(payThisMonth)}'),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: emp.isPaid
-                                              ? Colors.green.shade100
-                                              : Colors.yellow.shade100,
-                                          borderRadius: BorderRadius.circular(12),
-                                        ),
-                                        child: Text(
-                                          emp.isPaid ? 'Paid' : 'Unpaid',
-                                          style: TextStyle(
-                                            color:
-                                            emp.isPaid ? Colors.green.shade800 : Colors.orange.shade800,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      if (!emp.isPaid)
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              emp.isPaid = true;
-                                            });
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          child: const Text('Mark as Paid'),
-                                        ),
-                                    ],
-                                  ),
-                                ],
+                            Text(e.name,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            Text('Hours: ${e.hoursWorked}/${e.totalHours}'),
+                            Text('Rate: ${_fmt(e.hourlyRate)}'),
+                            Text('Pay: ${_fmt(pay)}'),
+                            const SizedBox(height: 8),
+                            Row(children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: e.isPaid
+                                      ? Colors.green.shade100
+                                      : Colors.yellow.shade100,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(e.isPaid ? 'Paid' : 'Unpaid'),
                               ),
-                            ),
-                            // Info kanan (bonus & deduction)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('Bonus: ${_formatCurrency(emp.bonus)}'),
-                                Text('Deduction: ${_formatCurrency(emp.deduction)}'),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                              const SizedBox(width: 8),
+                              if (!e.isPaid)
+                                ElevatedButton(
+                                  onPressed: () =>
+                                      setState(() => e.isPaid = true),
+                                  child: const Text('Mark as Paid'),
+                                ),
+                            ]),
+                          ]),
                     ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ],
-        ),
+                    // Info kanan
+                    Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                      Text('Bonus: ${_fmt(e.bonus)}'),
+                      Text('Deduction: ${_fmt(e.deduction)}'),
+                    ]),
+                  ]),
+                ),
+              );
+            }).toList(),
+          ),
+        ]),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
+        currentIndex: 1, // Schedule tab
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
+        onTap: (i) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => MainNav(initialIndex: i)),
+          );
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: 'Schedule'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today), label: 'Schedule'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
