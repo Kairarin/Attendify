@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'main.dart'; // untuk akses MainNav
 
 class LeaveRequest {
   final String type;
@@ -18,8 +19,7 @@ class LeaveRequest {
 }
 
 class LeaveRequestsPage extends StatefulWidget {
-  const LeaveRequestsPage({super.key});
-
+  const LeaveRequestsPage({Key? key}) : super(key: key);
   @override
   State<LeaveRequestsPage> createState() => _LeaveRequestsPageState();
 }
@@ -179,12 +179,20 @@ class _LeaveRequestsPageState extends State<LeaveRequestsPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
+        currentIndex: 1, // Schedule=1, tapi karena kita di LeaveRequests, set ke 0/1/2 sesuai urutan di MainNav
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: "Schedule"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Schedule'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
+        onTap: (idx) {
+          // navigasi via MainNav
+          if (idx != 1) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const MainNav()),
+            );
+          }
+        },
       ),
     );
   }
