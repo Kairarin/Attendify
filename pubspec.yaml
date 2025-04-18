@@ -44,6 +44,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   js: ^0.6.7
   file_picker: ^5.2.5  
+  mobile_scanner: ^3.6.0
+  qr_flutter: ^4.2.0
+  barcode_widget: ^2.0.0
 
 dev_dependencies:
   flutter_test:
