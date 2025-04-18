@@ -19,20 +19,26 @@ class HRDashboardApp extends StatelessWidget {
 }
 
 class MainNav extends StatefulWidget {
-  const MainNav({Key? key}) : super(key: key);
+  /// initialIndex: 0=Home, 1=Schedule, 2=Profile
+  final int initialIndex;
+  const MainNav({Key? key, this.initialIndex = 0}) : super(key: key);
 
   @override
   State<MainNav> createState() => _MainNavState();
-}
-
-class _MainNavState extends State<MainNav> {
-  int _selectedIndex = 0;
+}class _MainNavState extends State<MainNav> {
+  late int _selectedIndex;
 
   static const List<Widget> _pages = <Widget>[
     HomePage(),
     SchedulePage(),
     ProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.initialIndex;
+  }
 
   void _onItemTapped(int idx) => setState(() => _selectedIndex = idx);
 
