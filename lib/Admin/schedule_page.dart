@@ -13,23 +13,16 @@ class _SchedulePageState extends State<SchedulePage> {
   TimeOfDay checkInTime = const TimeOfDay(hour: 7, minute: 30);
   TimeOfDay checkOutTime = const TimeOfDay(hour: 15, minute: 0);
 
-  final TextEditingController dateController = TextEditingController();
-  final TextEditingController checkInController = TextEditingController();
-  final TextEditingController checkOutController = TextEditingController();
+  final dateController = TextEditingController();
+  final checkInController = TextEditingController();
+  final checkOutController = TextEditingController();
 
   bool isEditing = false;
   final Set<DateTime> scheduledDates = {};
 
   @override
-  void initState() {
-    super.initState();
-    // jangan panggil _updateControllers() di sini
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // sekarang context sudah lengkap dengan Localizations
     _updateControllers();
   }
 
@@ -46,67 +39,48 @@ class _SchedulePageState extends State<SchedulePage> {
       firstDate: DateTime(2024),
       lastDate: DateTime(2026),
     );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-        _updateControllers();
-      });
-    }
+    if (picked != null) setState(() {
+      selectedDate = picked;
+      _updateControllers();
+    });
   }
 
-  Future<void> _selectTime({required bool isCheckIn}) async {
+  Future<void> _selectTime(bool isIn) async {
     final picked = await showTimePicker(
       context: context,
-      initialTime: isCheckIn ? checkInTime : checkOutTime,
+      initialTime: isIn ? checkInTime : checkOutTime,
     );
-    if (picked != null) {
-      setState(() {
-        if (isCheckIn) {
-          checkInTime = picked;
-        } else {
-          checkOutTime = picked;
-        }
-        _updateControllers();
-      });
-    }
+    if (picked != null) setState(() {
+      if (isIn) checkInTime = picked; else checkOutTime = picked;
+      _updateControllers();
+    });
   }
 
   void _setSchedule() {
     setState(() {
       scheduledDates.add(DateTime(
-        selectedDate.year,
-        selectedDate.month,
-        selectedDate.day,
-      ));
+          selectedDate.year, selectedDate.month, selectedDate.day));
     });
   }
 
   Widget _buildCalendar() {
     final year = selectedDate.year;
     final month = selectedDate.month;
-    final lastDay = DateTime(year, month + 1, 0).day;
-    final days = List.generate(lastDay, (i) => DateTime(year, month, i + 1));
-
+    final daysInMonth = DateTime(year, month + 1, 0).day;
     return Wrap(
       alignment: WrapAlignment.center,
-      children: days.map((d) {
+      children: List.generate(daysInMonth, (i) {
+        final d = DateTime(year, month, i + 1);
         final isSel = d.day == selectedDate.day;
-        final isSch = scheduledDates.any((sd) =>
-        sd.year == d.year && sd.month == d.month && sd.day == d.day);
-
+        final isSch = scheduledDates.contains(d);
         return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedDate = d;
-              _updateControllers();
-            });
-          },
+          onTap: () => setState(() {
+            selectedDate = d; _updateControllers();
+          }),
           child: Container(
-            width: 40,
-            height: 40,
-            margin: const EdgeInsets.all(4),
+            width: 40, height: 40, margin: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: isSel ? Colors.blue.shade100 : Colors.transparent,
+              color: isSel ? Colors.blue.shade100 : null,
               border: Border.all(color: Colors.black12),
               borderRadius: BorderRadius.circular(20),
             ),
@@ -117,16 +91,13 @@ class _SchedulePageState extends State<SchedulePage> {
                 if (isSch)
                   const Positioned(
                     bottom: 6,
-                    child: CircleAvatar(
-                      radius: 3,
-                      backgroundColor: Colors.green,
-                    ),
+                    child: CircleAvatar(radius: 3, backgroundColor: Colors.green),
                   ),
               ],
             ),
           ),
         );
-      }).toList(),
+      }),
     );
   }
 
@@ -134,12 +105,22 @@ class _SchedulePageState extends State<SchedulePage> {
 
   @override
   Widget build(BuildContext context) {
+    final monthYear = DateFormat('MMMM yyyy').format(selectedDate);
     return Scaffold(
       appBar: AppBar(title: const Text('Schedule')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // <-- Header Bulan & Tahun
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                monthYear,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            const SizedBox(height: 8),
             _buildCalendar(),
             const SizedBox(height: 16),
             Row(
@@ -178,8 +159,7 @@ class _SchedulePageState extends State<SchedulePage> {
               onTap: _selectDate,
             ),
             const SizedBox(height: 16),
-            const Text('Attendance Time',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text('Attendance Time', style: TextStyle(fontSize: 16)),
             const SizedBox(height: 8),
             Row(
               children: [
@@ -188,7 +168,7 @@ class _SchedulePageState extends State<SchedulePage> {
                     controller: checkInController,
                     readOnly: true,
                     decoration: const InputDecoration(labelText: 'Check In Time'),
-                    onTap: () => _selectTime(isCheckIn: true),
+                    onTap: () => _selectTime(true),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -197,7 +177,7 @@ class _SchedulePageState extends State<SchedulePage> {
                     controller: checkOutController,
                     readOnly: true,
                     decoration: const InputDecoration(labelText: 'Check Out Time'),
-                    onTap: () => _selectTime(isCheckIn: false),
+                    onTap: () => _selectTime(false),
                   ),
                 ),
               ],
@@ -205,22 +185,12 @@ class _SchedulePageState extends State<SchedulePage> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _setSchedule,
-              child:
-              Text(isEditing ? 'Change Schedule' : 'Set Schedule'),
+              child: Text(isEditing ? 'Change Schedule' : 'Set Schedule'),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_today), label: 'Schedule'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: 'Profile'),
-        ],
-      ),
+      // **Hapus** bottomNavigationBar duplikat di sini!
     );
   }
 }
