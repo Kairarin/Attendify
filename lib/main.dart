@@ -1,89 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(AttendifyApp());
+import 'firebase_options.dart';
+import 'models/User.dart';
+import 'screens/Login.dart';
+import 'app.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const AttendifyApp());
 }
 
 class AttendifyApp extends StatelessWidget {
+  const AttendifyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Attendify App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginScreen(),
-    );
-  }
-}
-
-class LoginScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background.png'), // Ganti dengan gambar latar belakang
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image.asset(
-              'assets/images/LoginImage.jpg',
-              width: 200,
-              height: 200,
-              fit: BoxFit.cover, // opsional: bisa juga contain, fill, dll
-            ),
-
-            SizedBox(height: 20),
-            Text(
-              'Welcome to Attendify App',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'LOGIN',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'NIK',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                suffixIcon: Icon(Icons.visibility_off), // Ganti dengan logo mata
-              ),
-              obscureText: true,
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Logika untuk login
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: const Color(0xFF22577A),
+        scaffoldBackgroundColor: Colors.white,
+      ),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, authSnapshot) {
+          if (authSnapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
+          final firebaseUser = authSnapshot.data;
+          if (firebaseUser != null) {
+            return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+              future:
+                  FirebaseFirestore.instance
+                      .collection('users')
+                      .doc(firebaseUser.uid)
+                      .get(),
+              builder: (context, userDocSnapshot) {
+                if (userDocSnapshot.connectionState ==
+                    ConnectionState.waiting) {
+                  return const Scaffold(
+                    body: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (!userDocSnapshot.hasData || !userDocSnapshot.data!.exists) {
+                  return const Scaffold(
+                    body: Center(child: Text('User profile not found')),
+                  );
+                }
+                final userModel = UserModel.fromFirestore(
+                  userDocSnapshot.data!,
+                );
+                return MainScreen(user: userModel);
               },
-              child: Text('Login'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue, minimumSize: Size(double.infinity, 50),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                // Lupa password
-              },
-              child: Text(
-                'Forget Password?',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
-              ),
-            ),
-          ],
-        ),
+            );
+          } else {
+            return const LoginScreen();
+          }
+        },
       ),
     );
   }
