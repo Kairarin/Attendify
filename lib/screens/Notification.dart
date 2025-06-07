@@ -48,6 +48,7 @@ class _NotificationPageState extends State<NotificationPage> {
       FirebaseFirestore.instance
           .collection('requests')
           .where('user_id', isEqualTo: widget.user.uid)
+          // .orderBy('created_at', descending: true)
           .snapshots();
 
   @override

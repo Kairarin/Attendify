@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/User.dart';
 import '../models/Schedule.dart';
-import '../models/Attendance.dart';
+
 import 'AttendanceHistory.dart';
 import 'EmployeeAttendance.dart';
 import 'Complain.dart';
 import 'MeetingSchedule.dart';
 import 'RequestLeave.dart';
-import 'Login.dart';
 
 class HomePage extends StatelessWidget {
   final UserModel user;
@@ -165,18 +163,6 @@ class HomePage extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      IconButton(
-                        icon: const Icon(Icons.logout, color: Colors.white),
-                        onPressed: () async {
-                          await FirebaseAuth.instance.signOut();
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const LoginScreen(),
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                 ],

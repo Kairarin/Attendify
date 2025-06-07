@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -84,18 +83,29 @@ class _EmployeeAttendancePageState extends State<EmployeeAttendancePage> {
     if (xfile == null) return;
 
     final bytes = await xfile.readAsBytes();
-    final bucket = Supabase.instance.client.storage.from('attendance');
-    final path =
+    final bucketId = 'attendance';
+    final bucket = Supabase.instance.client.storage.from(bucketId);
+    final fileName =
         '${widget.user.uid}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
     try {
-      final String uploaded = await bucket.uploadBinary(
-        path,
+      final String uploadedPath = await bucket.uploadBinary(
+        fileName,
         bytes,
         fileOptions: const FileOptions(upsert: true),
       );
-      final String url = bucket.getPublicUrl(uploaded);
-      setState(() => _wfhEvidenceUrl = url);
+      print('uploadedPath: $uploadedPath');
+
+      String rawPath = uploadedPath;
+      if (uploadedPath.startsWith('$bucketId/')) {
+        rawPath = uploadedPath.substring(bucketId.length + 1);
+      }
+
+      final String publicUrl = bucket.getPublicUrl(rawPath);
+
+      setState(() {
+        _wfhEvidenceUrl = publicUrl;
+      });
     } catch (e) {
       ScaffoldMessenger.of(
         context,

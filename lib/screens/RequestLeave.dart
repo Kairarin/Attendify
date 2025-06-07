@@ -1,7 +1,3 @@
-// lib/screens/RequestLeave.dart
-
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,27 +53,24 @@ class _RequestLeavePageState extends State<RequestLeavePage> {
     final XFile? xfile = await picker.pickImage(source: src, imageQuality: 80);
     if (xfile == null) return;
 
-    // baca langsung bytes, ini aman di iOS/Android/Web
-    final Uint8List bytes = await xfile.readAsBytes();
-
-    final bucket = Supabase.instance.client.storage.from('requests');
-    final pathOnBucket =
+    final bytes = await xfile.readAsBytes();
+    final bucketId = 'requests';
+    final bucket = Supabase.instance.client.storage.from(bucketId);
+    final fileName =
         '${widget.user.uid}_${DateTime.now().millisecondsSinceEpoch}.jpg';
 
     try {
-      // uploadBinary menerima Uint8List
-      final String uploadedPath = await bucket.uploadBinary(
-        pathOnBucket,
-        bytes,
-        fileOptions: const FileOptions(upsert: true),
-      );
+      final String uploadedPath = await bucket.uploadBinary(fileName, bytes);
+      print('uploadedPath: $uploadedPath');
 
-      // dapatkan public URL langsung sebagai String
-      final String publicUrl = bucket.getPublicUrl(uploadedPath);
+      String rawPath = uploadedPath;
+      if (uploadedPath.startsWith('$bucketId/')) {
+        rawPath = uploadedPath.substring(bucketId.length + 1);
+      }
 
-      setState(() {
-        evidenceUrl = publicUrl;
-      });
+      final String publicUrl = bucket.getPublicUrl(rawPath);
+
+      setState(() => evidenceUrl = publicUrl);
     } catch (err) {
       ScaffoldMessenger.of(
         context,
