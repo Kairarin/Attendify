@@ -74,29 +74,89 @@
 //   }
 // }
 
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+// class UserModel {
+//   final String uid;
+//   final String nama;
+//   final String position;
+//   final String email;
+
+//   UserModel({
+//     required this.uid,
+//     required this.nama,
+//     required this.position,
+//     required this.email,
+//   });
+
+//   factory UserModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+//     final data = doc.data()!;
+//     return UserModel(
+//       uid: doc.id,
+//       nama: data['nama'] as String? ?? '',
+//       position: data['position'] as String? ?? '',
+//       email: data['email'] as String? ?? '',
+//     );
+//   }
+// }
+
+// File: lib/models/User.dart
+
+// import 'package:cloud_firestore/cloud_firestore.dart';
+
+// /// Model user sesuai struktur Firestore di koleksi "users"
+// class UserModel {
+//   final String uid;
+//   final String nama;
+//   final String position;
+//   final String email;
+
+//   UserModel({
+//     required this.uid,
+//     required this.nama,
+//     required this.position,
+//     required this.email,
+//   });
+
+//   factory UserModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
+//     final data = doc.data()!;
+//     return UserModel(
+//       uid: doc.id,
+//       nama: data['nama'] as String? ?? '',
+//       position: data['position'] as String? ?? '',
+//       email: data['email'] as String? ?? '',
+//     );
+//   }
+
+//   Map<String, dynamic> toMap() {
+//     return {'nama': nama, 'position': position, 'email': email};
+//   }
+// }
+
+// File: lib/models/User.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserModel {
   final String uid;
   final String nama;
-  final String position;
   final String email;
-  // (opsional: avatarUrl, dll.)
+  final String position;
 
   UserModel({
     required this.uid,
     required this.nama,
-    required this.position,
     required this.email,
+    required this.position,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
     final data = doc.data()!;
     return UserModel(
       uid: doc.id,
-      nama: data['nama'] as String? ?? '',
-      position: data['position'] as String? ?? '',
-      email: data['email'] as String? ?? '',
+      nama: data['nama'] as String,
+      email: data['email'] as String,
+      position: data['position'] as String,
     );
   }
 }

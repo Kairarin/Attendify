@@ -59,7 +59,7 @@ class AttendanceSuccessPage extends StatelessWidget {
                   CircleAvatar(
                     radius: 22,
                     backgroundImage: NetworkImage(
-                      'https://i.pravatar.cc/150?img=3',
+                      'https://down-id.img.susercontent.com/file/sg-11134201-22100-7aoyvztvl9ive1',
                     ),
                   ),
                 ],
