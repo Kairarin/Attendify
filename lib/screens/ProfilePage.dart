@@ -11,7 +11,6 @@ class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key, required this.user}) : super(key: key);
 
   Future<void> _doLogout(BuildContext context) async {
-    // 1) Catat logout hanya kalau bukan web
     if (!kIsWeb) {
       try {
         await DeviceActivityDb.instance.insert(
@@ -26,10 +25,8 @@ class ProfilePage extends StatelessWidget {
       }
     }
 
-    // 2) Logout Firebase
     await FirebaseAuth.instance.signOut();
 
-    // 3) Balik ke Login screen dan buang semua history
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -87,7 +84,6 @@ class ProfilePage extends StatelessWidget {
               ),
               const Spacer(),
 
-              // tombol Device Activity
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -105,7 +101,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // tombol Logout
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(

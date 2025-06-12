@@ -1,13 +1,7 @@
-// lib/app.dart
-
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
 import 'screens/Homepage.dart';
-import 'screens/Notification.dart'; // ← import baru
+import 'screens/Notification.dart';
 import 'screens/ProfilePage.dart';
-import 'screens/RequestLeave.dart';
-import 'screens/Login.dart';
 import 'models/User.dart';
 import 'widgets/BottomBar.dart';
 
@@ -27,9 +21,9 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pages = [
-      HomePage(user: widget.user), // tab 0
-      NotificationPage(user: widget.user), // tab 1
-      ProfilePage(user: widget.user), // tab 2
+      HomePage(user: widget.user),
+      NotificationPage(user: widget.user),
+      ProfilePage(user: widget.user),
     ];
   }
 
